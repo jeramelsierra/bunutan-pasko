@@ -20,6 +20,9 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "Bunutan Pasko",
   description: "Ang tradisyonal na bunutan, dinala sa web.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
