@@ -101,7 +101,17 @@ export default function AdminDashboard() {
         {/* Room Code Card */}
         <div className="card bg-pasko-gold/10 border-pasko-gold text-center py-8">
           <p className="text-sm text-pasko-forest/80 uppercase tracking-widest mb-2">Share this code with your group</p>
-          <h2 className="font-mono text-6xl font-bold tracking-widest text-pasko-red">{code}</h2>
+
+          <div className="flex flex-col items-center justify-center gap-4">
+            <h2 className="font-mono text-6xl font-bold tracking-widest text-pasko-red leading-none">{code}</h2>
+
+            <button
+              onClick={handleCopyLink}
+              className="mt-2 inline-flex items-center gap-2 rounded-full bg-pasko-forest px-5 py-2.5 text-sm font-semibold text-pasko-cream transition-all hover:bg-pasko-forest-soft active:scale-95"
+            >
+              {copying ? "✅ Copied!" : "📋 Copy Invite Message"}
+            </button>
+          </div>
         </div>
 
         {/* Draw Button */}
