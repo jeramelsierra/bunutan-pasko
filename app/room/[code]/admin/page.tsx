@@ -9,20 +9,21 @@ import { MusicToggle } from "@/components/MusicToggle";
 export default function AdminDashboard() {
   const { code } = useParams();
   const router = useRouter();
-  
+
   // STATE DECLARATIONS
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [room, setRoom] = useState<any>(null);
   const [drawing, setDrawing] = useState(false);
+  const [copying, setCopying] = useState(false);
 
   const loadData = async () => {
     try {
       // 1. Fetch members (this will fail with 401 if you aren't the admin)
       const res = await fetch(`/api/rooms/${code}/members`);
       const json = await res.json();
-      
+
       if (res.status === 401) {
         throw new Error("You are not the admin of this room. Please go back to the home page and create a new room.");
       }
@@ -38,7 +39,7 @@ export default function AdminDashboard() {
         // If the admin isn't a member yet, we just fallback
         setRoom({ code, name: "Admin Room", revealAt: new Date().toISOString(), drawnAt: null, revealPassed: false });
       }
-      
+
       setMembers(json.members || []);
       setLoading(false);
     } catch (err: any) {
@@ -47,9 +48,19 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => { 
-    loadData(); 
+  useEffect(() => {
+    loadData();
   }, [code]);
+
+  const handleCopyLink = () => {
+    const joinUrl = `${window.location.origin}/join?code=${code}`;
+
+    const message = `Hello! 🎄 Join our Bunutan Pasko!\n\nI've created a room for our monito monita. Here is the link:\n${joinUrl}\n\nIf the link doesn't work, just go to ${window.location.origin}/join and enter our room code: ${code}`;
+
+    navigator.clipboard.writeText(message);
+    setCopying(true);
+    setTimeout(() => setCopying(false), 2000);
+  };
 
   const handleDraw = async () => {
     if (!confirm("Are you sure? This will assign the monitos.")) return;
@@ -80,7 +91,7 @@ export default function AdminDashboard() {
   return (
     <main className="relative min-h-screen pb-24">
       <section className="relative pt-4 opacity-50 pointer-events-none"><ParolRow count={5} /></section>
-      
+
       <div className="mx-auto max-w-3xl px-6 pt-8 space-y-8">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-pasko-red">Admin Dashboard</p>
