@@ -17,6 +17,7 @@ export default function AdminDashboard() {
   const [room, setRoom] = useState<any>(null);
   const [drawing, setDrawing] = useState(false);
   const [copying, setCopying] = useState(false);
+  const [switching, setSwitching] = useState(false);
 
   const loadData = async () => {
     try {
@@ -60,6 +61,23 @@ export default function AdminDashboard() {
     navigator.clipboard.writeText(message);
     setCopying(true);
     setTimeout(() => setCopying(false), 2000);
+  };
+
+  const handleGoToMemberView = async () => {
+    setSwitching(true);
+    try {
+      // This logs you into your own member account
+      const res = await fetch(`/api/rooms/${code}/switch-to-member`, { method: "POST" });
+      if (res.ok) {
+        window.location.href = `/room/${code}`; // Force a hard reload to the member page
+      } else {
+        alert("Could not switch to member view. Please try again.");
+      }
+    } catch (err) {
+      alert("Error switching views.");
+    } finally {
+      setSwitching(false);
+    }
   };
 
   const handleDraw = async () => {
@@ -160,9 +178,13 @@ export default function AdminDashboard() {
         </div>
 
         <div className="text-center pt-4">
-          <Link href={`/room/${code}`} className="text-sm font-semibold text-pasko-forest hover:text-pasko-red underline">
-            Go to Member View →
-          </Link>
+          <button
+            onClick={handleGoToMemberView}
+            disabled={switching}
+            className="btn-secondary px-6 py-2 text-sm"
+          >
+            {switching ? "Switching..." : "Go to Member View →"}
+          </button>
         </div>
       </div>
       <MusicToggle />
