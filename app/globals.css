@@ -1,0 +1,71 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Nunito", system-ui, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-pasko-paper text-pasko-ink font-body antialiased;
+    background-image: theme("backgroundImage.paper-grain");
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-pasko-forest;
+  }
+
+  ::selection {
+    @apply bg-pasko-gold/30 text-pasko-forest;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-pasko-gold focus-visible:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-pasko-red text-pasko-cream shadow-card hover:bg-pasko-red-soft hover:shadow-lg active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply btn bg-pasko-forest text-pasko-cream shadow-card hover:bg-pasko-forest-soft hover:shadow-lg active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply btn border border-pasko-forest/20 text-pasko-forest hover:bg-pasko-forest/5;
+  }
+
+  .card {
+    @apply rounded-2xl bg-white/70 backdrop-blur-sm p-6 shadow-card border border-pasko-gold/20;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-pasko-forest/20 bg-white/80 px-4 py-3 text-pasko-ink placeholder:text-pasko-ink/40 focus:border-pasko-gold focus:outline-none focus:ring-2 focus:ring-pasko-gold/30;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-pasko-forest;
+  }
+
+  .divider-hand {
+    @apply flex items-center gap-3 text-pasko-gold/70;
+  }
+
+  .divider-hand::before,
+  .divider-hand::after {
+    content: "";
+    @apply h-px flex-1 bg-gradient-to-r from-transparent via-pasko-gold/40 to-transparent;
+  }
+}
