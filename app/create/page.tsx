@@ -29,15 +29,22 @@ export default function CreateRoomPage() {
     setError(null);
 
     try {
+      // Convert local strings to UTC ISO strings
+      const payload = {
+        ...form,
+        revealAt: new Date(form.revealAt).toISOString(),
+        wishlistDeadline: new Date(form.wishlistDeadline).toISOString(),
+      };
+
       const res = await fetch("/api/rooms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload), // Send the converted payload
       });
       const data = await res.json();
-      
+
       if (!res.ok) throw new Error(data.error || "Failed to create room");
-      
+
       router.push(`/room/${data.room.code}/admin`);
     } catch (err: any) {
       setError(err.message);
@@ -48,7 +55,7 @@ export default function CreateRoomPage() {
   return (
     <main className="relative min-h-screen pb-24">
       <section className="relative pt-4 opacity-50 pointer-events-none"><ParolRow count={5} /></section>
-      
+
       <div className="mx-auto max-w-xl px-6 pt-8">
         <Link href="/" className="mb-6 inline-block text-sm font-semibold text-pasko-forest hover:text-pasko-red">← Back to Home</Link>
         <h1 className="font-display text-3xl font-bold text-pasko-forest">Gumawa ng Room</h1>
@@ -61,7 +68,7 @@ export default function CreateRoomPage() {
             <label className="label">Your Name (Admin)</label>
             <input required type="text" placeholder="e.g. Maria" className="input" value={form.adminName} onChange={(e) => setForm({ ...form, adminName: e.target.value })} />
           </div>
-          
+
           {/* NEW: Admin PIN Input */}
           <div>
             <label className="label">Create Admin PIN (6 digits)</label>
