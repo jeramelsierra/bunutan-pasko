@@ -44,6 +44,11 @@ export default function JoinRoomPage() {
         <h1 className="font-display text-3xl font-bold text-pasko-forest">Sumali sa Room</h1>
         <p className="mt-2 text-pasko-ink/70">Enter the 5-character code from your admin.</p>
 
+        {/* ADD THIS NEW BANNER */}
+        <div className="mt-4 rounded-lg bg-pasko-gold/10 border border-pasko-gold/30 p-3 text-xs text-pasko-forest/80 text-center">
+          💡 <strong>Tip:</strong> If you are opening this link from Messenger or Viber, tap the three dots (<strong>⋮</strong>) at the top right and choose <strong>"Open in Browser"</strong> to ensure your login works correctly.
+        </div>
+
         {error && (
           <div className="mt-6 rounded-lg bg-pasko-red/10 p-4 text-sm text-pasko-red border border-pasko-red/20">
             {error}
