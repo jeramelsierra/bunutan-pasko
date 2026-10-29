@@ -50,8 +50,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Incorrect PIN" }, { status: 401 });
   }
 
-  // 4. Set the session cookie
+    // 4. Set the session cookie
   setSessionCookie(matchedMember.access_token);
 
-  return NextResponse.json({ ok: true });
+  // 5. Set the PIN verified cookie
+  const response = NextResponse.json({ ok: true });
+  response.cookies.set("bunutan_pin_verified", matchedMember.id, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true, // <--- Change this to true
+    path: "/",    // <--- Make sure this is "/"
+    maxAge: 60 * 60 * 24 * 60, 
+  });
+
+  return response;
 }
