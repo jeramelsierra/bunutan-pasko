@@ -13,7 +13,7 @@ export default function MemberDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
-  
+
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [savingWish, setSavingWish] = useState(false);
   const [isEditing, setIsEditing] = useState(true); // Controls the toggle
@@ -27,11 +27,11 @@ export default function MemberDashboard() {
         throw new Error("Failed to load room data");
       }
       const json = await res.json();
-      
+
       setData(json);
       setWishlist(json.ownWishlist || []);
       setLoading(false);
-      
+
       // If they already have items saved, show the read-only view by default
       if (json.ownWishlist && json.ownWishlist.length > 0) {
         setIsEditing(false);
@@ -49,13 +49,13 @@ export default function MemberDashboard() {
   useEffect(() => {
     if (!data?.room?.revealAt) return;
     const revealTime = new Date(data.room.revealAt).getTime();
-    
+
     const tick = () => {
       const now = new Date().getTime();
       const diff = revealTime - now;
       if (diff <= 0) {
         setTimeLeft("Revealed!");
-        if (data.room.revealPassed === false) loadData(); 
+        if (data.room.revealPassed === false) loadData();
         return;
       }
       const d = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -79,10 +79,10 @@ export default function MemberDashboard() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to save");
-      
+
       // Switch to read-only mode after saving
-      setIsEditing(false); 
-      
+      setIsEditing(false);
+
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -124,11 +124,11 @@ export default function MemberDashboard() {
         {room.revealPassed && assignment && (
           <div className="card bg-pasko-forest text-pasko-cream shadow-xl animate-fade-up">
             <div className="text-center space-y-4">
-              <p className="text-sm uppercase tracking-widest text-pasko-gold">You are the Monito/Monita of</p>
+              <p className="text-sm uppercase tracking-widest text-pasko-gold">Your Monito/Monita is</p>
               <h2 className="font-display text-5xl font-bold text-white">{assignment.monitoName}</h2>
-              
+
               <div className="my-6 h-px w-24 mx-auto bg-pasko-gold/30"></div>
-              
+
               {assignment.wishlist.length > 0 ? (
                 <div className="text-left space-y-3 max-w-md mx-auto">
                   <h3 className="text-sm uppercase tracking-widest text-pasko-gold">Their Wish List</h3>
@@ -168,7 +168,7 @@ export default function MemberDashboard() {
             ) : (
               <p className="text-sm text-pasko-ink/60 mb-4">Your wishes are saved! Waiting for the reveal...</p>
             )}
-            
+
             {isEditing ? (
               // EDITING MODE
               <>
@@ -211,10 +211,10 @@ export default function MemberDashboard() {
         )}
 
         {room.drawnAt && !room.revealPassed && (
-           <div className="text-center p-6 bg-white/50 rounded-2xl border border-pasko-gold/20">
-             <p className="text-pasko-forest font-semibold">🎉 The bunutan has been drawn!</p>
-             <p className="text-sm text-pasko-ink/70 mt-1">Waiting for the reveal date to see who you got...</p>
-           </div>
+          <div className="text-center p-6 bg-white/50 rounded-2xl border border-pasko-gold/20">
+            <p className="text-pasko-forest font-semibold">🎉 The bunutan has been drawn!</p>
+            <p className="text-sm text-pasko-ink/70 mt-1">Waiting for the reveal date to see who you got...</p>
+          </div>
         )}
 
       </div>
