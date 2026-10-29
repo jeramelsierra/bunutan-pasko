@@ -117,6 +117,17 @@ export default function CreateRoomPage() {
           </div>
           <button type="submit" disabled={loading} className="btn-primary w-full py-4 text-lg">{loading ? "Creating..." : "Create Room"}</button>
         </form>
+
+        {/* ADD THIS BLOCK */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/"
+            className="text-sm font-semibold text-pasko-ink/60 hover:text-pasko-forest transition-colors"
+          >
+            ← Back to the Home Page
+          </Link>
+        </div>
+
       </div>
       <MusicToggle />
     </main>
