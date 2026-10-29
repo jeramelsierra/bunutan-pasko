@@ -12,7 +12,8 @@ export type CreateRoomInput = {
   giftMode: GiftMode;
   theme: string | null;
   adminName: string;
-  adminPin: string; // <-- ADDED
+  adminPin: string;
+  memberPin: string; // <-- ADDED
 };
 
 export type JoinRoomInput = {
@@ -43,6 +44,11 @@ export function validateCreateRoom(raw: any): ValidationResult<CreateRoomInput> 
   const adminPin = String(raw.adminPin ?? "").trim();
   if (!/^\d{6}$/.test(adminPin)) {
     return fail("Admin PIN must be exactly 6 digits.");
+  }
+
+  const memberPin = String(raw.memberPin ?? "").trim();
+  if (!/^\d{6}$/.test(memberPin)) {
+    return fail("Member PIN must be exactly 6 digits.");
   }
 
   const priceRange = String(raw.priceRange ?? "").trim();
@@ -81,7 +87,7 @@ export function validateCreateRoom(raw: any): ValidationResult<CreateRoomInput> 
 
   return {
     ok: true,
-    value: { name, priceRange, revealAt, wishlistDeadline, giftMode, theme, adminName, adminPin },
+    value: { name, priceRange, revealAt, wishlistDeadline, giftMode, theme, adminName, adminPin, memberPin },
   };
 }
 

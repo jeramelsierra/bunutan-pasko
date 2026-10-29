@@ -106,6 +106,17 @@ export default function AdminDashboard() {
 
   const isDrawn = !!room?.drawnAt;
 
+  const handleRemoveMember = async (memberId: string) => {
+    if (!confirm("Are you sure you want to remove this member? They will have to join again.")) return;
+    try {
+      const res = await fetch(`/api/rooms/${code}/members?memberId=${memberId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to remove member");
+      loadData(); // Refresh list
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   return (
     <main className="relative min-h-screen pb-24">
       <section className="relative pt-4 opacity-50 pointer-events-none"><ParolRow count={5} /></section>
@@ -156,6 +167,36 @@ export default function AdminDashboard() {
           )}
         </div>
 
+        {/* Settings Card */}
+        <div className="card">
+          <h3 className="font-display text-xl font-bold text-pasko-forest mb-4">Room Settings</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="label">Wishlist Deadline</label>
+              <input
+                type="datetime-local"
+                className="input"
+                defaultValue={room?.wishlistDeadline ? new Date(room.wishlistDeadline).toISOString().slice(0, 16) : ""}
+                onChange={(e) => {
+                  // We'll add the save function later, for now, just visual!
+                }}
+              />
+            </div>
+            <div>
+              <label className="label">Reveal Date</label>
+              <input
+                type="datetime-local"
+                className="input"
+                defaultValue={room?.revealAt ? new Date(room.revealAt).toISOString().slice(0, 16) : ""}
+                onChange={(e) => {
+                  // We'll add the save function later, for now, just visual!
+                }}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-pasko-ink/60 mt-2">Note: Date editing will be fully functional in the next update.</p>
+        </div>
+
         {/* Members List */}
         <div className="card">
           <h3 className="font-display text-xl font-bold text-pasko-forest mb-4">Members ({members.length})</h3>
@@ -166,10 +207,15 @@ export default function AdminDashboard() {
                   <p className="font-semibold text-pasko-forest">{m.name} {m.isAdmin && <span className="text-xs bg-pasko-gold/20 text-pasko-red px-2 py-0.5 rounded ml-2">Admin</span>}</p>
                   <p className="text-xs text-pasko-ink/60">Joined {new Date(m.joinedAt).toLocaleDateString()} • {m.wishCount} wishes</p>
                 </div>
-                <div className="text-right">
+                <div className="flex items-center gap-3">
                   <span className={`text-xs font-mono px-2 py-1 rounded ${m.hasPin ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
                     {m.hasPin ? 'PIN set' : 'No PIN'}
                   </span>
+                  {!m.isAdmin && (
+                    <button onClick={() => handleRemoveMember(m.id)} className="text-xs text-pasko-red hover:underline">
+                      Remove
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

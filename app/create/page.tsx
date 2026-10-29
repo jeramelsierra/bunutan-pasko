@@ -77,6 +77,12 @@ export default function CreateRoomPage() {
           </div>
 
           <div>
+            <label className="label">Create Member PIN (6 digits)</label>
+            <input required type="text" inputMode="numeric" pattern="\d{6}" maxLength={6} placeholder="••••••" className="input font-mono tracking-widest" value={form.memberPin} onChange={(e) => setForm({ ...form, memberPin: e.target.value.replace(/\D/g, "") })} />
+            <p className="mt-1 text-xs text-pasko-ink/60">Use this PIN to log into your own wishlist.</p>
+          </div>
+
+          <div>
             <label className="label">Room Name</label>
             <input required type="text" placeholder="e.g. Cruz Family Pasko 2025" className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </div>

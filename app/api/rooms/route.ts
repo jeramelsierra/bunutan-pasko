@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
-  const { name, priceRange, revealAt, wishlistDeadline, giftMode, theme, adminName, adminPin } = parsed.value;
+  const { name, priceRange, revealAt, wishlistDeadline, giftMode, theme, adminName, adminPin, memberPin } = parsed.value;
 
   const sb = supabaseAdmin();
 
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
   const adminToken = generateAccessToken(32);
   const adminAccessToken = generateAccessToken(32);
   const pinHash = await hashPin(adminPin);
+  const memberPinHash = await hashPin(memberPin);
 
   // 3. Create the room
   const { data: room, error: roomErr } = await sb
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
     name: adminName,
     access_token: adminAccessToken,
     is_admin: true,
+    pin_hash: memberPinHash,
   });
 
   if (memberErr) {
