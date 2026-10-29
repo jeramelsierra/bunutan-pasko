@@ -35,7 +35,7 @@ export async function POST(
   if (roomErr || !room) {
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
   }
-  
+
   if (room.drawn_at) {
     return NextResponse.json(
       { error: "This room has already been drawn." },
@@ -73,9 +73,20 @@ export async function POST(
 
   setSessionCookie(accessToken);
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     ok: true,
     member: { id: member.id, name: member.name },
     accessToken,
   });
+
+  // ADD THIS: Auto-verify the PIN for this session
+  response.cookies.set("bunutan_pin_verified", member.id, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 60,
+  });
+
+  return response;
 }
