@@ -45,13 +45,10 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div className="mt-6 flex justify-center items-center gap-2">
-          <span className="text-pasko-ink/40 text-sm">Are you the host?</span>
-          <Link
-            href="/admin/login"
-            className="text-sm font-semibold text-pasko-red hover:text-pasko-red-soft underline decoration-pasko-red/30 underline-offset-4 transition-all hover:decoration-pasko-red"
-          >
-            Admin Login →
+        <div className="mt-2 flex justify-center items-center gap-2">
+          <span className="text-pasko-ink/40 text-sm">Already joined?</span>
+          <Link href="/member/login" className="text-sm font-semibold text-pasko-forest hover:text-pasko-red underline decoration-pasko-forest/30 underline-offset-4 transition-all hover:decoration-pasko-forest">
+            Member Login →
           </Link>
         </div>
 
