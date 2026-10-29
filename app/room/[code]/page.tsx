@@ -13,9 +13,10 @@ export default function MemberDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
-
+  
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [savingWish, setSavingWish] = useState(false);
+  const [isEditing, setIsEditing] = useState(true); // Controls the toggle
   const [timeLeft, setTimeLeft] = useState("");
 
   const loadData = async () => {
@@ -26,11 +27,15 @@ export default function MemberDashboard() {
         throw new Error("Failed to load room data");
       }
       const json = await res.json();
-
-      // Safely load the data directly
+      
       setData(json);
       setWishlist(json.ownWishlist || []);
       setLoading(false);
+      
+      // If they already have items saved, show the read-only view by default
+      if (json.ownWishlist && json.ownWishlist.length > 0) {
+        setIsEditing(false);
+      }
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
@@ -44,13 +49,13 @@ export default function MemberDashboard() {
   useEffect(() => {
     if (!data?.room?.revealAt) return;
     const revealTime = new Date(data.room.revealAt).getTime();
-
+    
     const tick = () => {
       const now = new Date().getTime();
       const diff = revealTime - now;
       if (diff <= 0) {
         setTimeLeft("Revealed!");
-        if (data.room.revealPassed === false) loadData();
+        if (data.room.revealPassed === false) loadData(); 
         return;
       }
       const d = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -74,12 +79,13 @@ export default function MemberDashboard() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to save");
-
-      // Instead of an alert, just redirect them immediately
-      window.location.href = `/room/${code}`;
-
+      
+      // Switch to read-only mode after saving
+      setIsEditing(false); 
+      
     } catch (err: any) {
       alert(err.message);
+    } finally {
       setSavingWish(false);
     }
   };
@@ -120,9 +126,9 @@ export default function MemberDashboard() {
             <div className="text-center space-y-4">
               <p className="text-sm uppercase tracking-widest text-pasko-gold">You are the Monito/Monita of</p>
               <h2 className="font-display text-5xl font-bold text-white">{assignment.monitoName}</h2>
-
+              
               <div className="my-6 h-px w-24 mx-auto bg-pasko-gold/30"></div>
-
+              
               {assignment.wishlist.length > 0 ? (
                 <div className="text-left space-y-3 max-w-md mx-auto">
                   <h3 className="text-sm uppercase tracking-widest text-pasko-gold">Their Wish List</h3>
@@ -146,67 +152,69 @@ export default function MemberDashboard() {
 
         {!room.revealPassed && showWishlist && (
           <div className="card">
-            <h3 className="font-display text-xl font-bold text-pasko-forest mb-4">My Wish List (Max 3)</h3>
-            {isWishlistLocked ? (
-              <p className="text-sm text-pasko-red font-semibold mb-4">🔒 Wishlist is locked (deadline passed).</p>
-            ) : (
-              <p className="text-sm text-pasko-ink/60 mb-4">Only your monito will see this after the reveal.</p>
-            )}
-
-            <div className="space-y-4">
-              {[1, 2, 3].map((pos) => {
-                const item = wishlist.find(w => w.position === pos) || { position: pos, text: "", url: "" };
-                return (
-                  <div key={pos} className="flex gap-3">
-                    <div className="font-display text-2xl text-pasko-gold pt-2">{pos}.</div>
-                    <div className="flex-1 space-y-2">
-                      <input
-                        type="text"
-                        placeholder="What do you want?"
-                        disabled={isWishlistLocked}
-                        className="input py-2 text-sm"
-                        value={item.text}
-                        onChange={(e) => {
-                          const newW = wishlist.filter(w => w.position !== pos);
-                          newW.push({ ...item, text: e.target.value });
-                          setWishlist(newW);
-                        }}
-                      />
-                      <input
-                        type="url"
-                        placeholder="Link (optional)"
-                        disabled={isWishlistLocked}
-                        className="input py-1 text-xs"
-                        value={item.url || ""}
-                        onChange={(e) => {
-                          const newW = wishlist.filter(w => w.position !== pos);
-                          newW.push({ ...item, url: e.target.value });
-                          setWishlist(newW);
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-display text-xl font-bold text-pasko-forest">My Wish List</h3>
+              {!isWishlistLocked && !isEditing && (
+                <button onClick={() => setIsEditing(true)} className="text-sm font-semibold text-pasko-red hover:underline">
+                  ✏️ Edit
+                </button>
+              )}
             </div>
 
-            {!isWishlistLocked && (
-              <button
-                onClick={handleSaveWishlist}
-                disabled={savingWish}
-                className="btn-secondary w-full mt-6"
-              >
-                {savingWish ? "Saving..." : "Save Wish List"}
-              </button>
+            {isWishlistLocked ? (
+              <p className="text-sm text-pasko-red font-semibold mb-4">🔒 Wishlist is locked (deadline passed).</p>
+            ) : isEditing ? (
+              <p className="text-sm text-pasko-ink/60 mb-4">Only your monito will see this after the reveal.</p>
+            ) : (
+              <p className="text-sm text-pasko-ink/60 mb-4">Your wishes are saved! Waiting for the reveal...</p>
+            )}
+            
+            {isEditing ? (
+              // EDITING MODE
+              <>
+                <div className="space-y-4">
+                  {[1, 2, 3].map((pos) => {
+                    const item = wishlist.find(w => w.position === pos) || { position: pos, text: "", url: "" };
+                    return (
+                      <div key={pos} className="flex gap-3">
+                        <div className="font-display text-2xl text-pasko-gold pt-2">{pos}.</div>
+                        <div className="flex-1 space-y-2">
+                          <input type="text" placeholder="What do you want?" disabled={isWishlistLocked} className="input py-2 text-sm" value={item.text} onChange={(e) => { const newW = wishlist.filter(w => w.position !== pos); newW.push({ ...item, text: e.target.value }); setWishlist(newW); }} />
+                          <input type="url" placeholder="Link (optional)" disabled={isWishlistLocked} className="input py-1 text-xs" value={item.url || ""} onChange={(e) => { const newW = wishlist.filter(w => w.position !== pos); newW.push({ ...item, url: e.target.value }); setWishlist(newW); }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {!isWishlistLocked && (
+                  <button onClick={handleSaveWishlist} disabled={savingWish} className="btn-secondary w-full mt-6">
+                    {savingWish ? "Saving..." : "Save Wish List"}
+                  </button>
+                )}
+              </>
+            ) : (
+              // READ-ONLY MODE
+              <div className="space-y-3">
+                {wishlist.filter(w => w.text.trim()).length === 0 ? (
+                  <p className="text-sm italic text-pasko-ink/50 text-center py-4">You haven't added any wishes yet.</p>
+                ) : (
+                  wishlist.filter(w => w.text.trim()).map((w, idx) => (
+                    <div key={idx} className="bg-pasko-gold/5 border border-pasko-gold/30 rounded-lg p-3">
+                      <p className="font-semibold text-pasko-forest">{idx + 1}. {w.text}</p>
+                      {w.url && <a href={w.url} target="_blank" rel="noreferrer" className="text-xs text-pasko-red underline mt-1 block">View Link</a>}
+                    </div>
+                  ))
+                )}
+              </div>
             )}
           </div>
         )}
 
         {room.drawnAt && !room.revealPassed && (
-          <div className="text-center p-6 bg-white/50 rounded-2xl border border-pasko-gold/20">
-            <p className="text-pasko-forest font-semibold">🎉 The bunutan has been drawn!</p>
-            <p className="text-sm text-pasko-ink/70 mt-1">Waiting for the reveal date to see who you got...</p>
-          </div>
+           <div className="text-center p-6 bg-white/50 rounded-2xl border border-pasko-gold/20">
+             <p className="text-pasko-forest font-semibold">🎉 The bunutan has been drawn!</p>
+             <p className="text-sm text-pasko-ink/70 mt-1">Waiting for the reveal date to see who you got...</p>
+           </div>
         )}
 
       </div>
