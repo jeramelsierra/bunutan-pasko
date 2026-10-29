@@ -29,9 +29,20 @@ export default function JoinRoomPage() {
           <div><label className="label">Room Code</label><input required type="text" placeholder="e.g. X7K2M" maxLength={5} className="input font-mono text-lg uppercase tracking-widest text-center" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} /></div>
           <div><label className="label">Your Name</label><input required type="text" className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
           <div>
-            <label className="label">6-Digit PIN (Optional)</label>
-            <input type="text" maxLength={6} className="input font-mono" value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })} />
-            <p className="mt-1 text-xs text-pasko-ink/60">Keeps your wish list private if someone else uses your device.</p>
+            <label className="label">6-Digit PIN for Relogin</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="\d{6}"
+              maxLength={6}
+              placeholder="••••••"
+              className="input font-mono tracking-widest"
+              value={form.pin}
+              onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })}
+            />
+            <p className="mt-1 text-xs text-pasko-ink/60">
+              Use this PIN to log back in if you clear your browser or use a new device.
+            </p>
           </div>
           <button type="submit" disabled={loading} className="btn-secondary w-full py-4 text-lg">{loading ? "Joining..." : "Join Room"}</button>
         </form>
