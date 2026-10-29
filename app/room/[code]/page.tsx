@@ -21,21 +21,35 @@ export default function MemberDashboard() {
 
   const loadData = async () => {
     try {
-      const res = await fetch("/api/me");
-      if (!res.ok) {
-        if (res.status === 401) return router.push("/join");
-        throw new Error("Failed to load room data");
-      }
+      // 1. Fetch members (this will fail with 401 if you aren't the admin)
+      const res = await fetch(`/api/rooms/${code}/members`);
       const json = await res.json();
 
-      setData(json);
-      setWishlist(json.ownWishlist || []);
-      setLoading(false);
-
-      // If they already have items saved, show the read-only view by default
-      if (json.ownWishlist && json.ownWishlist.length > 0) {
-        setIsEditing(false);
+      if (res.status === 401) {
+        throw new Error("You are not the admin of this room. Please go back to the home page and create a new room.");
       }
+      if (!res.ok) throw new Error(json.error || "Failed to load room");
+
+      // 2. Fetch room details
+      const meRes = await fetch("/api/me");
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        const roomData = meData.room || meData.data?.room;
+
+        // FIX: Manually check if reveal has passed using local time
+        if (roomData && roomData.revealAt) {
+          const revealTime = new Date(roomData.revealAt).getTime();
+          const now = new Date().getTime();
+          roomData.revealPassed = now >= revealTime;
+        }
+
+        setRoom(roomData);
+      } else {
+        setRoom({ code, name: "Admin Room", revealAt: new Date().toISOString(), drawnAt: null, revealPassed: false });
+      }
+
+      setMembers(json.members || []);
+      setLoading(false);
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
