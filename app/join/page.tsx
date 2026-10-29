@@ -87,12 +87,11 @@ export default function JoinRoomPage() {
               onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })}
             />
             <p className="mt-1 text-xs text-pasko-ink/60">
-              Use this PIN to log back in if you clear your browser or use a new device.
+              Use this PIN to log back in if you clear your browser or use a new device. Make sure your PIN is unique.
             </p>
           </div>
           
           <button type="submit" disabled={loading} className="btn-secondary w-full py-4 text-lg">
-            {loading ? "Joining..." : "Join Room"}
           </button>
 
           <div className="mt-6 text-center border-t border-pasko-forest/10 pt-6">
