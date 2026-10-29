@@ -35,12 +35,12 @@ export default function JoinRoomPage() {
       <section className="relative pt-4 opacity-50 pointer-events-none">
         <ParolRow count={5} />
       </section>
-      
+
       <div className="mx-auto max-w-md px-6 pt-8 animate-fade-up">
         <Link href="/" className="mb-6 inline-block text-sm font-semibold text-pasko-forest hover:text-pasko-red">
           ← Back to Home
         </Link>
-        
+
         <h1 className="font-display text-3xl font-bold text-pasko-forest">Sumali sa Room</h1>
         <p className="mt-2 text-pasko-ink/70">Enter the 5-character code from your admin.</p>
 
@@ -90,15 +90,16 @@ export default function JoinRoomPage() {
               Use this PIN to log back in if you clear your browser or use a new device. Make sure your PIN is unique.
             </p>
           </div>
-          
+
           <button type="submit" disabled={loading} className="btn-secondary w-full py-4 text-lg">
+            <span>{loading ? "Joining..." : "Join Room"}</span>
           </button>
 
           <div className="mt-6 text-center border-t border-pasko-forest/10 pt-6">
             <p className="text-sm text-pasko-ink/60">
               Already joined this room?{" "}
-              <Link 
-                href="/member/login" 
+              <Link
+                href="/member/login"
                 className="font-semibold text-pasko-red hover:underline"
               >
                 Log in here
