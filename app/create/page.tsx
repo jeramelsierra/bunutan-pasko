@@ -19,6 +19,7 @@ export default function CreateRoomPage() {
     wishlistDeadline: "",
     adminName: "",
     adminPin: "", // <-- ADDED
+    memberPin: "", // <-- ADDED
     giftMode: "wishlist" as GiftMode,
     theme: "",
   });
