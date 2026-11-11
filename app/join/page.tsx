@@ -111,6 +111,13 @@ export default function JoinRoomPage() {
               </Link>
             </p>
           </div>
+
+          <div className="mt-2 text-center">
+            <Link href="/faq" className="text-xs text-pasko-ink/50 hover:text-pasko-red hover:underline">
+              Need help? Read our FAQs
+            </Link>
+          </div>
+          
         </form>
       </div>
       <MusicToggle />

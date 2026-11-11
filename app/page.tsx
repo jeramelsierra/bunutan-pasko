@@ -51,6 +51,12 @@ export default function LandingPage() {
             Member Login →
           </Link>
         </div>
+        <div className="mt-2 flex justify-center items-center gap-2">
+          <span className="text-pasko-ink/40 text-sm">Already joined?</span>
+          <Link href="/member/login" className="text-sm font-semibold text-pasko-forest hover:text-pasko-red underline decoration-pasko-forest/30 underline-offset-4 transition-all hover:decoration-pasko-forest">
+            Member Login →
+          </Link>
+        </div>
 
         <p className="mt-6 text-sm text-pasko-ink/60 max-w-md mx-auto">
           No sign-up needed. Just a room code, your name, and a{" "}
@@ -93,6 +99,12 @@ export default function LandingPage() {
         <p className="mt-16 text-center text-sm text-pasko-ink/50">
           Made with love and joy by Asteor Studios, para sa tradisyong Paskong Pinoy. 🇵🇭🎄
         </p>
+
+        <div className="mt-6 flex justify-center gap-4 text-sm text-pasko-ink/50">
+          <Link href="/faq" className="hover:text-pasko-red underline">FAQs</Link>
+          <Link href="/member/login" className="hover:text-pasko-red underline">Member Login</Link>
+          <Link href="/admin/login" className="hover:text-pasko-red underline">Admin Login</Link>
+        </div>
       </section>
 
       <MusicToggle />
