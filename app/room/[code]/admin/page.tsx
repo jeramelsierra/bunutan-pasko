@@ -15,6 +15,13 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [room, setRoom] = useState<any>(null);
+  
+  // Settings State
+  const [newDeadline, setNewDeadline] = useState("");
+  const [newReveal, setNewReveal] = useState("");
+  const [savingSettings, setSavingSettings] = useState(false);
+  
+  // Other states
   const [drawing, setDrawing] = useState(false);
   const [copying, setCopying] = useState(false);
   const [switching, setSwitching] = useState(false);
@@ -34,10 +41,24 @@ export default function AdminDashboard() {
       const meRes = await fetch("/api/me");
       if (meRes.ok) {
         const meData = await meRes.json();
-        // Handle response shape safely
-        setRoom(meData.room || meData.data?.room);
+        const roomData = meData.room || meData.data?.room;
+        
+        // Force local time check
+        if (roomData && roomData.revealAt) {
+          const revealTime = new Date(roomData.revealAt).getTime();
+          const now = new Date().getTime();
+          roomData.revealPassed = now >= revealTime;
+        }
+
+        setRoom(roomData);
+        
+        // Populate the settings inputs
+        if (roomData) {
+          setNewDeadline(roomData.wishlistDeadline ? new Date(roomData.wishlistDeadline).toISOString().slice(0, 16) : "");
+          setNewReveal(roomData.revealAt ? new Date(roomData.revealAt).toISOString().slice(0, 16) : "");
+        }
+
       } else {
-        // If the admin isn't a member yet, we just fallback
         setRoom({ code, name: "Admin Room", revealAt: new Date().toISOString(), drawnAt: null, revealPassed: false });
       }
 
@@ -55,9 +76,7 @@ export default function AdminDashboard() {
 
   const handleCopyLink = () => {
     const joinUrl = `${window.location.origin}/join?code=${code}`;
-
     const message = `Hello! 🎄 Join our Bunutan Pasko!\n\nI've created a room for our monito monita. Here is the link:\n${joinUrl}\n\nIf the link doesn't work, just go to ${window.location.origin}/join and enter our room code: ${code}`;
-
     navigator.clipboard.writeText(message);
     setCopying(true);
     setTimeout(() => setCopying(false), 2000);
@@ -66,10 +85,9 @@ export default function AdminDashboard() {
   const handleGoToMemberView = async () => {
     setSwitching(true);
     try {
-      // This logs you into your own member account
       const res = await fetch(`/api/rooms/${code}/switch-to-member`, { method: "POST" });
       if (res.ok) {
-        window.location.href = `/room/${code}`; // Force a hard reload to the member page
+        window.location.href = `/room/${code}`; 
       } else {
         alert("Could not switch to member view. Please try again.");
       }
@@ -88,11 +106,45 @@ export default function AdminDashboard() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to draw");
       alert("Bunutan successful! 🎉");
-      loadData(); // Refresh the list
+      loadData(); 
     } catch (err: any) {
       alert(err.message);
     } finally {
       setDrawing(false);
+    }
+  };
+
+  const handleRemoveMember = async (memberId: string) => {
+    if (!confirm("Are you sure you want to remove this member? They will have to join again.")) return;
+    try {
+      const res = await fetch(`/api/rooms/${code}/members?memberId=${memberId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to remove member");
+      loadData(); 
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    try {
+      const res = await fetch(`/api/rooms/${code}/settings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wishlistDeadline: newDeadline,
+          revealAt: newReveal,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to update settings");
+      alert("Settings updated successfully!");
+      loadData();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setSavingSettings(false);
     }
   };
 
@@ -105,17 +157,6 @@ export default function AdminDashboard() {
   );
 
   const isDrawn = !!room?.drawnAt;
-
-  const handleRemoveMember = async (memberId: string) => {
-    if (!confirm("Are you sure you want to remove this member? They will have to join again.")) return;
-    try {
-      const res = await fetch(`/api/rooms/${code}/members?memberId=${memberId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to remove member");
-      loadData(); // Refresh list
-    } catch (err: any) {
-      alert(err.message);
-    }
-  };
 
   return (
     <main className="relative min-h-screen pb-24">
@@ -130,14 +171,9 @@ export default function AdminDashboard() {
         {/* Room Code Card */}
         <div className="card bg-pasko-gold/10 border-pasko-gold text-center py-8">
           <p className="text-sm text-pasko-forest/80 uppercase tracking-widest mb-2">Share this code with your group</p>
-
           <div className="flex flex-col items-center justify-center gap-4">
             <h2 className="font-mono text-6xl font-bold tracking-widest text-pasko-red leading-none">{code}</h2>
-
-            <button
-              onClick={handleCopyLink}
-              className="mt-2 inline-flex items-center gap-2 rounded-full bg-pasko-forest px-5 py-2.5 text-sm font-semibold text-pasko-cream transition-all hover:bg-pasko-forest-soft active:scale-95"
-            >
+            <button onClick={handleCopyLink} className="mt-2 inline-flex items-center gap-2 rounded-full bg-pasko-forest px-5 py-2.5 text-sm font-semibold text-pasko-cream transition-all hover:bg-pasko-forest-soft active:scale-95">
               {copying ? "✅ Copied!" : "📋 Copy Invite Message"}
             </button>
           </div>
@@ -170,31 +206,21 @@ export default function AdminDashboard() {
         {/* Settings Card */}
         <div className="card">
           <h3 className="font-display text-xl font-bold text-pasko-forest mb-4">Room Settings</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <form onSubmit={handleSaveSettings} className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="label">Wishlist Deadline</label>
-              <input
-                type="datetime-local"
-                className="input"
-                defaultValue={room?.wishlistDeadline ? new Date(room.wishlistDeadline).toISOString().slice(0, 16) : ""}
-                onChange={(e) => {
-                  // We'll add the save function later, for now, just visual!
-                }}
-              />
+              <input type="datetime-local" className="input" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} />
             </div>
             <div>
               <label className="label">Reveal Date</label>
-              <input
-                type="datetime-local"
-                className="input"
-                defaultValue={room?.revealAt ? new Date(room.revealAt).toISOString().slice(0, 16) : ""}
-                onChange={(e) => {
-                  // We'll add the save function later, for now, just visual!
-                }}
-              />
+              <input type="datetime-local" className="input" value={newReveal} onChange={(e) => setNewReveal(e.target.value)} />
             </div>
-          </div>
-          <p className="text-xs text-pasko-ink/60 mt-2">Note: Date editing will be fully functional in the next update.</p>
+            <div className="sm:col-span-2 mt-2">
+              <button type="submit" disabled={savingSettings} className="btn-primary w-full sm:w-auto px-8 py-2 text-sm">
+                {savingSettings ? "Saving..." : "Update Settings"}
+              </button>
+            </div>
+          </form>
         </div>
 
         {/* Members List */}
@@ -224,11 +250,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="text-center pt-4">
-          <button
-            onClick={handleGoToMemberView}
-            disabled={switching}
-            className="btn-secondary px-6 py-2 text-sm"
-          >
+          <button onClick={handleGoToMemberView} disabled={switching} className="btn-secondary px-6 py-2 text-sm">
             {switching ? "Switching..." : "Go to Member View →"}
           </button>
         </div>
