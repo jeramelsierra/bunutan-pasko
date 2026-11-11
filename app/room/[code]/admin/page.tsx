@@ -15,12 +15,12 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [room, setRoom] = useState<any>(null);
-  
+
   // Settings State
   const [newDeadline, setNewDeadline] = useState("");
   const [newReveal, setNewReveal] = useState("");
   const [savingSettings, setSavingSettings] = useState(false);
-  
+
   // Other states
   const [drawing, setDrawing] = useState(false);
   const [copying, setCopying] = useState(false);
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
       if (meRes.ok) {
         const meData = await meRes.json();
         const roomData = meData.room || meData.data?.room;
-        
+
         // Force local time check
         if (roomData && roomData.revealAt) {
           const revealTime = new Date(roomData.revealAt).getTime();
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
         }
 
         setRoom(roomData);
-        
+
         // Populate the settings inputs
         if (roomData) {
           setNewDeadline(roomData.wishlistDeadline ? new Date(roomData.wishlistDeadline).toISOString().slice(0, 16) : "");
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
     try {
       const res = await fetch(`/api/rooms/${code}/switch-to-member`, { method: "POST" });
       if (res.ok) {
-        window.location.href = `/room/${code}`; 
+        window.location.href = `/room/${code}`;
       } else {
         alert("Could not switch to member view. Please try again.");
       }
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to draw");
       alert("Bunutan successful! 🎉");
-      loadData(); 
+      loadData();
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
     try {
       const res = await fetch(`/api/rooms/${code}/members?memberId=${memberId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to remove member");
-      loadData(); 
+      loadData();
     } catch (err: any) {
       alert(err.message);
     }
@@ -138,11 +138,16 @@ export default function AdminDashboard() {
         }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to update settings");
+
+      // If the server throws an error, show it!
+      if (!res.ok) {
+        throw new Error(json.error || "Failed to update settings");
+      }
+
       alert("Settings updated successfully!");
       loadData();
     } catch (err: any) {
-      alert(err.message);
+      alert(`Error: ${err.message}`); // Show the exact error message
     } finally {
       setSavingSettings(false);
     }
