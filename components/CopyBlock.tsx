@@ -4,7 +4,7 @@
       <div className="divider-hand mx-auto max-w-xs">
         <span className="text-2xl text-pasko-gold">✦</span>
       </div>
-      
+
       <h2 className="font-display text-2xl font-semibold text-pasko-forest mb-4">
         A Little Something for the Filipino Christmas
       </h2>
@@ -19,12 +19,16 @@
         <p>
           Because beyond the gifts themselves, what makes this tradition special is the thought we put into choosing them—and the simple reminder that someone is remembered this Christmas.
         </p>
+
+        <p className="font-semibold text-pasko-forest">
+          Of course, let's never forget the true reason why we celebrate Christmas: our dear Lord Jesus Christ's birth! ✨
+        </p>
       </div>
 
       <p className="font-display text-lg italic text-pasko-red mt-6">
         Let's keep the tradition of giving alive, one bunot at a time. 🎄
       </p>
-      
+
       <div className="divider-hand mx-auto max-w-xs mt-6">
         <span className="text-2xl text-pasko-gold">✦</span>
       </div>
